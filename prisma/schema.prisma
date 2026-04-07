@@ -11,3 +11,32 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum Role {
+  USER
+  MODERATOR
+  ADMIN
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  histories History[]
+}
+
+model History {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Float
+  type      String
+  action    String
+  status    String
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
