@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/providers/provider";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "Auth System Dash",
@@ -14,7 +15,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <Providers>
+          {children}
+
+          {/* Toast container */}
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+              style: {
+                background: "#333",
+                color: "#fff",
+              },
+            }}
+          />
+        </Providers>
       </body>
     </html>
   );
