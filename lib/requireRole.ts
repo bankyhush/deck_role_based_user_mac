@@ -20,9 +20,9 @@ export async function requireRole(minimumRole: Role) {
   const user = verifyAccessToken(token);
   if (!user) redirect("/login");
 
-  // ✅ check if user's role meets the minimum required
+  // check if user's role meets the minimum required
   if (ROLE_RANK[user.role] < ROLE_RANK[minimumRole]) {
-    redirect("/unauthorized"); // ✅ not high enough role
+    redirect("/register"); // not high enough role
   }
 
   return user;
