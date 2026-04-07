@@ -29,7 +29,7 @@ export default function DashboardLogic({ user: serverUser }: Props) {
   const { data: histories, isPending: historyLoading } = useQuery<History[]>({
     queryKey: ["histories"],
     queryFn: async () => {
-      const res = await axios.get("/api/history");
+      const res = await axios.get("/api/user/history/view");
       return res.data.data;
     },
   });
@@ -178,6 +178,12 @@ export default function DashboardLogic({ user: serverUser }: Props) {
             </div>
           ))}
         </div>
+
+        <Link href="/dashboard/createhistory" className="mb-6 inline-block">
+          <button className="cursor-pointer px-3 py-2 text-xs bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+            Create History
+          </button>
+        </Link>
 
         {/* History table */}
         <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl overflow-hidden">

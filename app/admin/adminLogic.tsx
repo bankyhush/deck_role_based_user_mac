@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useMe } from "@/hooks/useMe";
 
 // ✅ User interface defined
 interface User {
@@ -23,6 +24,8 @@ interface Props {
 export default function AdminLogic({ user: serverUser }: Props) {
   const router = useRouter();
   const queryClient = useQueryClient();
+
+  const { data: user } = useMe();
 
   // ✅ fetch all users — not useMe (useMe only returns the logged in user)
   const { data: users, isPending } = useQuery<User[]>({
@@ -75,7 +78,7 @@ export default function AdminLogic({ user: serverUser }: Props) {
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="px-2.5 py-1 text-xs rounded-full font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                ADMIN
+                ADMIN - {user?.name}
               </span>
             </div>
             <h1 className="text-2xl font-semibold text-zinc-900 dark:text-white">
