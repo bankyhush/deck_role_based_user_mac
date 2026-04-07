@@ -26,7 +26,7 @@ export default function ModeratorLogic({ user: serverUser }: Props) {
   const { data: users, isPending } = useQuery<User[]>({
     queryKey: ["all-users"],
     queryFn: async () => {
-      const res = await axios.get("/api/moderator/users");
+      const res = await axios.get("/api/moderator/user");
       return res.data.data;
     },
   });
