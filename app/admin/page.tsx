@@ -1,8 +1,10 @@
-import { requireRole } from "@/lib/requireRole";
 import AdminLogic from "./adminLogic";
 
-const AdminUI = async () => {
-  const user = await requireRole("ADMIN");
+interface Props {
+  user: { id: string; email: string; role: "USER" | "MODERATOR" | "ADMIN" };
+}
+// Pa$$w0rd!
+const AdminUI = async ({ user }: Props) => {
   return <AdminLogic user={user} />;
 };
 
