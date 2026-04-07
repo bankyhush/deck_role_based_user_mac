@@ -6,6 +6,7 @@ interface User {
   name: string;
   email: string;
   role: "USER" | "MODERATOR" | "ADMIN";
+  emailVerified: boolean;
   createdAt: string;
 }
 
