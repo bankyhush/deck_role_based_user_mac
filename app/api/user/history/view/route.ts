@@ -1,5 +1,6 @@
 import prisma from "@/connection/db";
 import { getAuth } from "@/lib/auth";
+import { withCache, CacheKeys, CacheTTL } from "@/lib/cache";
 import { NextResponse } from "next/server";
 
 export async function GET() {
@@ -19,15 +20,21 @@ export async function GET() {
       );
     }
 
-    const histories = await prisma.history.findMany({
-      where: { userId: auth.id },
-      orderBy: { timestamp: "desc" },
-      include: {
-        user: {
-          select: { name: true, email: true },
-        },
-      },
-    });
+    // user's own history — userScoped pattern
+    const histories = await withCache(
+      CacheKeys.userScoped("history", auth.id),
+      () =>
+        prisma.history.findMany({
+          where: { userId: auth.id },
+          orderBy: { timestamp: "desc" },
+          include: {
+            user: {
+              select: { name: true, email: true },
+            },
+          },
+        }),
+      CacheTTL.SHORT,
+    );
 
     return NextResponse.json(
       { success: true, data: histories },

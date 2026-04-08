@@ -8,9 +8,7 @@ JWT_REFRESH_SECRET="cfghhbn78"
 UPSTASH_REDIS_REST_URL=your-upstash-url
 UPSTASH_REDIS_REST_TOKEN=your-upstash-token
 
-# Local Redis (development)
-REDIS_HOST=localhost
-REDIS_PORT=6379
+# https://console.upstash.com/redis/19439cdd-8b65-42d8-be8d-6b6f607fb384?teamid=0
 
 # nodemailer — use gmail or any SMTP
 EMAIL_HOST=smtp.gmail.com

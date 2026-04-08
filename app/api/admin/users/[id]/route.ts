@@ -1,34 +1,39 @@
 import prisma from "@/connection/db";
 import { requireApiRole } from "@/lib/requireApiRole";
+import { withCache, deleteCache, CacheKeys, CacheTTL } from "@/lib/cache";
 import { NextResponse } from "next/server";
 
 interface Params {
   id: string;
 }
 
-// ✅ GET single user details
 export async function GET(
   req: Request,
   { params }: { params: Promise<Params> },
 ) {
-  const { user, error } = await requireApiRole("ADMIN");
+  const { error } = await requireApiRole("ADMIN");
   if (error) return error;
 
   const { id } = await params;
 
   try {
-    const foundUser = await prisma.user.findUnique({
-      where: { id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        emailVerified: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const foundUser = await withCache(
+      CacheKeys.single("user", id),
+      () =>
+        prisma.user.findUnique({
+          where: { id },
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            emailVerified: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        }),
+      CacheTTL.MEDIUM,
+    );
 
     if (!foundUser) {
       return NextResponse.json(
@@ -50,25 +55,25 @@ export async function GET(
   }
 }
 
-// ✅ PUT edit user details
 export async function PUT(
   req: Request,
   { params }: { params: Promise<Params> },
 ) {
-  const { user, error } = await requireApiRole("ADMIN");
+  const { error } = await requireApiRole("ADMIN");
   if (error) return error;
 
   const { id } = await params;
-  const { name, email, emailVerified } = await req.json();
-
-  if (!name || !email) {
-    return NextResponse.json(
-      { success: false, message: "Name and email are required" },
-      { status: 400 },
-    );
-  }
 
   try {
+    const { name, email, emailVerified } = await req.json();
+
+    if (!name || !email) {
+      return NextResponse.json(
+        { success: false, message: "Name and email are required" },
+        { status: 400 },
+      );
+    }
+
     const updated = await prisma.user.update({
       where: { id },
       data: { name, email, emailVerified },
@@ -81,6 +86,12 @@ export async function PUT(
         createdAt: true,
       },
     });
+
+    await deleteCache(
+      CacheKeys.single("user", id),
+      CacheKeys.user(id),
+      CacheKeys.adminScoped("users"),
+    );
 
     return NextResponse.json(
       { success: true, message: "User updated successfully", data: updated },
@@ -95,7 +106,6 @@ export async function PUT(
   }
 }
 
-// ✅ DELETE user
 export async function DELETE(
   req: Request,
   { params }: { params: Promise<Params> },
@@ -114,6 +124,14 @@ export async function DELETE(
 
   try {
     await prisma.user.delete({ where: { id } });
+
+    await deleteCache(
+      CacheKeys.single("user", id),
+      CacheKeys.user(id),
+      CacheKeys.adminScoped("users"),
+      CacheKeys.userScoped("history", id),
+    );
+
     return NextResponse.json(
       { success: true, message: "User deleted" },
       { status: 200 },
