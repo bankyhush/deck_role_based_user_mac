@@ -1,0 +1,12 @@
+
+DATABASE_URL="postgresql://postgres:prom@localhost:5432/utouch"
+NODE_ENV=development
+JWT_ACCESS_SECRET="your_access_secret_key"
+JWT_REFRESH_SECRET="cfghhbn78"
+
+# nodemailer — use gmail or any SMTP
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=mgm@gmail.com
+EMAIL_PASS=dryt 9099  
+EMAIL_FROM="AuthStack API" <muhj@gmail.com>
