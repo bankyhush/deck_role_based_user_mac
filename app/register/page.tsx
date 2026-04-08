@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import api from "@/lib/axiosInstance";
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -20,7 +20,7 @@ export default function RegisterPage() {
       email: string;
       password: string;
     }) => {
-      const res = await axios.post("/api/auth/register", data);
+      const res = await api.post("/api/auth/register", data);
       return res.data;
     },
     onSuccess: () => {

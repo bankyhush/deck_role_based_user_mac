@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import api from "@/lib/axiosInstance";
 
 export default function NewHistoryPage() {
   const router = useRouter();
@@ -23,7 +23,7 @@ export default function NewHistoryPage() {
       action: string;
       status: string;
     }) => {
-      const res = await axios.post("/api/user/history/create", data);
+      const res = await api.post("/api/user/history/create", data);
       return res.data;
     },
     onSuccess: () => {

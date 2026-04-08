@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import api from "@/lib/axiosInstance";
 
 interface User {
   id: string;
@@ -28,7 +28,7 @@ export default function EditUserClient() {
   const { data: user, isPending } = useQuery<User>({
     queryKey: ["admin-user", id],
     queryFn: async () => {
-      const res = await axios.get(`/api/admin/users/${id}`);
+      const res = await api.get(`/api/admin/users/${id}`);
       return res.data.data;
     },
     staleTime: 0,
@@ -51,7 +51,7 @@ export default function EditUserClient() {
       role: string;
       emailVerified: boolean;
     }) => {
-      const res = await axios.put(`/api/admin/users/${id}`, data);
+      const res = await api.put(`/api/admin/users/${id}`, data);
       return res.data;
     },
     onSuccess: () => {

@@ -2,12 +2,12 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useMe } from "@/hooks/useMe";
+import api from "@/lib/axiosInstance";
 
-// ✅ User interface defined
+//  User interface defined
 interface User {
   id: string;
   name: string;
@@ -31,14 +31,14 @@ export default function AdminLogic({ user: serverUser }: Props) {
   const { data: users, isPending } = useQuery<User[]>({
     queryKey: ["admin-users"],
     queryFn: async () => {
-      const res = await axios.get("/api/admin/users");
+      const res = await api.get("/api/admin/users");
       return res.data.data;
     },
   });
 
   const changeRoleMutation = useMutation({
     mutationFn: async ({ id, role }: { id: string; role: string }) => {
-      const res = await axios.put(`/api/admin/users/${id}/role`, { role });
+      const res = await api.put(`/api/admin/users/${id}/role`, { role });
       return res.data;
     },
     onSuccess: () => {
@@ -51,7 +51,7 @@ export default function AdminLogic({ user: serverUser }: Props) {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`/api/admin/users/${id}/delete`);
+      await api.delete(`/api/admin/users/${id}/delete`);
     },
     onSuccess: (_, deletedId) => {
       queryClient.setQueryData<User[]>(["admin-users"], (old) =>
@@ -64,7 +64,7 @@ export default function AdminLogic({ user: serverUser }: Props) {
   });
 
   const handleLogout = async () => {
-    await axios.post("/api/auth/logout");
+    await api.post("/api/auth/logout");
     queryClient.clear();
     toast.success("Logged out");
     router.push("/login");

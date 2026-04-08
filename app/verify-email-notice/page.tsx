@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useSearchParams } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import api from "@/lib/axiosInstance";
 
 export default function VerifyEmailNoticePage() {
   const [resending, setResending] = useState(false);
@@ -15,7 +15,7 @@ export default function VerifyEmailNoticePage() {
     if (!email) return toast.error("Email not found");
     setResending(true);
     try {
-      await axios.post("/api/auth/resend-verification", { email });
+      await api.post("/api/auth/resend-verification", { email });
       toast.success("Verification email resent!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Failed to resend");

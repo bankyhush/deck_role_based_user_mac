@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import api from "@/lib/axiosInstance";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   const loginMutation = useMutation({
     mutationFn: async (creds: { email: string; password: string }) => {
-      const res = await axios.post("/api/auth/login", creds);
+      const res = await api.post("/api/auth/login", creds);
       return res.data;
     },
     onSuccess: () => {
@@ -146,7 +146,7 @@ export default function LoginPage() {
 // ✅ resend verification helper
 async function resendVerification(email: string) {
   try {
-    await axios.post("/api/auth/resend-verification", { email });
+    await api.post("/api/auth/resend-verification", { email });
     toast.success("Verification email sent!");
   } catch (error: any) {
     toast.error(error.response?.data?.message || "Failed to resend email");

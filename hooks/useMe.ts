@@ -1,5 +1,5 @@
+import api from "@/lib/axiosInstance";
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 
 interface User {
   id: string;
@@ -14,7 +14,7 @@ export function useMe() {
   return useQuery<User>({
     queryKey: ["me"],
     queryFn: async () => {
-      const res = await axios.get("/api/auth/me");
+      const res = await api.get("/api/auth/me");
       return res.data.data;
     },
     staleTime: 1000 * 60 * 5,

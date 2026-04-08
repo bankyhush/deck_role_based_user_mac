@@ -6,6 +6,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
 import { useMe } from "@/hooks/useMe";
+import api from "@/lib/axiosInstance";
 
 interface History {
   id: string;
@@ -29,13 +30,13 @@ export default function DashboardLogic({ user: serverUser }: Props) {
   const { data: histories, isPending: historyLoading } = useQuery<History[]>({
     queryKey: ["histories"],
     queryFn: async () => {
-      const res = await axios.get("/api/user/history/view");
+      const res = await api.get("/api/user/history/view");
       return res.data.data;
     },
   });
 
   const handleLogout = async () => {
-    await axios.post("/api/auth/logout");
+    await api.post("/api/auth/logout");
     queryClient.clear();
     toast.success("Logged out successfully");
     router.push("/login");
@@ -128,7 +129,7 @@ export default function DashboardLogic({ user: serverUser }: Props) {
             <button
               onClick={async () => {
                 try {
-                  await axios.post("/api/auth/resend-verification", {
+                  await api.post("/api/auth/resend-verification", {
                     email: user.email,
                   });
                   toast.success("Verification email sent!");

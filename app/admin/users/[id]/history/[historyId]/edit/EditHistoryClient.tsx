@@ -3,9 +3,9 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import api from "@/lib/axiosInstance";
 
 interface History {
   id: string;
@@ -29,9 +29,7 @@ export default function EditHistoryClient() {
   const { data: history, isPending } = useQuery<History>({
     queryKey: ["admin-history", historyId],
     queryFn: async () => {
-      const res = await axios.get(
-        `/api/admin/users/${id}/history/${historyId}`,
-      );
+      const res = await api.get(`/api/admin/users/${id}/history/${historyId}`);
       return res.data.data;
     },
     staleTime: 0,
@@ -54,7 +52,7 @@ export default function EditHistoryClient() {
       action: string;
       status: string;
     }) => {
-      const res = await axios.put(
+      const res = await api.put(
         `/api/admin/users/${id}/history/${historyId}`,
         data,
       );

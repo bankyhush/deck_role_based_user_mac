@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/providers/provider";
 import { Toaster } from "react-hot-toast";
+import { SessionWatcher } from "./providers";
 
 export const metadata: Metadata = {
   title: "Auth System Dash",
@@ -16,6 +17,7 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Providers>
+          <SessionWatcher />
           {children}
 
           {/* Toast container */}
