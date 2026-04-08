@@ -51,7 +51,7 @@ export default function AdminLogic({ user: serverUser }: Props) {
 
   const deleteUserMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.delete(`/api/admin/users/${id}`);
+      await axios.delete(`/api/admin/users/${id}/delete`);
     },
     onSuccess: (_, deletedId) => {
       queryClient.setQueryData<User[]>(["admin-users"], (old) =>
@@ -209,6 +209,12 @@ export default function AdminLogic({ user: serverUser }: Props) {
                       })}
                     </td>
                     <td className="px-6 py-4">
+                      <Link
+                        href={`/admin/users/${u.id}`}
+                        className="px-3 py-1.5 text-xs rounded-lg border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition mr-2"
+                      >
+                        View
+                      </Link>
                       <button
                         onClick={() => {
                           if (confirm(`Delete ${u.name}?`))
