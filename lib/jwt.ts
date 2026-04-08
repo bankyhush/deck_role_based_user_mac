@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 
-const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET || "your_access_secret_key";
-const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || "your_refresh";
+const ACCESS_SECRET = process.env.JWT_ACCESS_SECRET!;
+const REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
 export interface JwtPayload {
   id: string;
@@ -10,7 +10,7 @@ export interface JwtPayload {
 }
 
 export function signAccessToken(payload: JwtPayload): string {
-  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: "15m" });
+  return jwt.sign(payload, ACCESS_SECRET, { expiresIn: "5m" });
 }
 
 export function signRefreshToken(payload: JwtPayload): string {

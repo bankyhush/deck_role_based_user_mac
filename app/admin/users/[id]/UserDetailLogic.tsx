@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useEffect } from "react";
 
 interface User {
   id: string;
@@ -29,13 +30,26 @@ export default function UserDetailLogic() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const { data: user, isPending: userLoading } = useQuery<User>({
+  const {
+    data: user,
+    isPending: userLoading,
+    isError,
+  } = useQuery<User>({
     queryKey: ["admin-user", id],
     queryFn: async () => {
       const res = await axios.get(`/api/admin/users/${id}`);
       return res.data.data;
     },
+    retry: false, //Dont retry on 404 to avoid infinite loading state
   });
+
+  // auto redirect if user not found or any error
+  useEffect(() => {
+    if (isError) {
+      toast.error("User not found");
+      router.push("/admin");
+    }
+  }, [isError]);
 
   const { data: histories, isPending: historyLoading } = useQuery<History[]>({
     queryKey: ["admin-user-history", id],
