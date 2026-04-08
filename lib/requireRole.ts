@@ -1,10 +1,9 @@
 import { cookies } from "next/headers";
-import { verifyAccessToken } from "@/lib/jwt";
+import { verifyAccessToken, verifyRefreshToken } from "@/lib/jwt";
 import { redirect } from "next/navigation";
 
 type Role = "USER" | "MODERATOR" | "ADMIN";
 
-// role hierarchy — ADMIN > MODERATOR > USER
 const ROLE_RANK: Record<Role, number> = {
   USER: 1,
   MODERATOR: 2,
@@ -13,16 +12,23 @@ const ROLE_RANK: Record<Role, number> = {
 
 export async function requireRole(minimumRole: Role) {
   const cookieStore = await cookies();
-  const token = cookieStore.get("access_token")?.value;
 
-  if (!token) redirect("/login");
+  const accessToken = cookieStore.get("access_token")?.value;
+  const refreshToken = cookieStore.get("refresh_token")?.value;
 
-  const user = verifyAccessToken(token);
+  // check access token first
+  const accessUser = accessToken ? verifyAccessToken(accessToken) : null;
+
+  // fall back to refresh token if access expired
+  const refreshUser =
+    !accessUser && refreshToken ? verifyRefreshToken(refreshToken) : null;
+
+  const user = accessUser ?? refreshUser;
+
   if (!user) redirect("/login");
 
-  // check if user's role meets the minimum required
   if (ROLE_RANK[user.role] < ROLE_RANK[minimumRole]) {
-    redirect("/register"); // not high enough role
+    redirect("/");
   }
 
   return user;

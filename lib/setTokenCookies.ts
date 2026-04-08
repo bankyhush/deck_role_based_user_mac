@@ -9,7 +9,7 @@ export function setTokenCookies(
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 15, // 15 minutes
+    maxAge: 60 * 60, // 1 hour
     path: "/",
   });
 
@@ -18,7 +18,7 @@ export function setTokenCookies(
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
     maxAge: 60 * 60 * 24 * 7, // 7 days
-    path: "/api/auth/refresh", // only sent to refresh endpoint
+    path: "/",
   });
 
   return response;
