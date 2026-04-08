@@ -5,8 +5,13 @@ import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { sendVerificationEmail } from "@/lib/mailer";
 import crypto from "crypto";
 import { setTokenCookies } from "@/lib/setTokenCookies";
+import { rateLimitByIp, RateLimits } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  // rate limit by IP for register endpoint
+  const limited = await rateLimitByIp(req, RateLimits.REGISTER, "register");
+  if (limited) return limited;
+
   try {
     const { name, email, password } = await req.json();
 

@@ -3,8 +3,13 @@ import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { signAccessToken, signRefreshToken } from "@/lib/jwt";
 import { setTokenCookies } from "@/lib/setTokenCookies";
+import { rateLimitByIp, RateLimits } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
+  // rate limit by IP for login endpoint
+  const limited = await rateLimitByIp(req, RateLimits.LOGIN, "login");
+  if (limited) return limited;
+
   try {
     const { email, password } = await req.json();
 

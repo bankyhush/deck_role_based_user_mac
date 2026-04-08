@@ -2,6 +2,7 @@ import prisma from "@/connection/db";
 import { NextResponse } from "next/server";
 import { sendVerificationEmail } from "@/lib/mailer";
 import crypto from "crypto";
+import { rateLimitByEmail, RateLimits } from "@/lib/rateLimit";
 
 export async function POST(req: Request) {
   try {
@@ -13,6 +14,14 @@ export async function POST(req: Request) {
         { status: 400 },
       );
     }
+
+    //  rate limit by email for resend verification endpoint
+    const limited = await rateLimitByEmail(
+      email,
+      RateLimits.RESEND_EMAIL,
+      "resend",
+    );
+    if (limited) return limited;
 
     const user = await prisma.user.findUnique({ where: { email } });
 
@@ -30,7 +39,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // ✅ generate a fresh token
+    // generate a fresh token
     const verifyToken = crypto.randomBytes(32).toString("hex");
 
     await prisma.user.update({

@@ -1,5 +1,7 @@
 import prisma from "@/connection/db";
 import { getAuth } from "@/lib/auth";
+import { rateLimitByUserId, RateLimits } from "@/lib/rateLimit";
+import { deleteCache, CacheKeys } from "@/lib/cache";
 import { NextResponse } from "next/server";
 
 interface HistoryType {
@@ -17,49 +19,56 @@ export async function POST(req: Request) {
       { status: 401 },
     );
 
-  const body = await req.json();
-  const { amount, type, action, status } = body as HistoryType;
-
-  if (!amount || !type || !action || !status) {
-    return NextResponse.json(
-      { success: false, message: "All fields are required" },
-      { status: 400 },
-    );
-  }
-
-  if (typeof amount !== "number" || amount <= 0) {
-    return NextResponse.json(
-      { success: false, message: "Amount must be a positive number" },
-      { status: 400 },
-    );
-  }
-
-  const validTypes = ["DEPOSIT", "WITHDRAWAL", "TRANSFER", "PAYMENT"];
-  const validActions = ["CREDIT", "DEBIT"];
-  const validStatuses = ["PENDING", "SUCCESS", "FAILED"];
-
-  if (!validTypes.includes(type)) {
-    return NextResponse.json(
-      { success: false, message: "Invalid transaction type" },
-      { status: 400 },
-    );
-  }
-
-  if (!validActions.includes(action)) {
-    return NextResponse.json(
-      { success: false, message: "Invalid action" },
-      { status: 400 },
-    );
-  }
-
-  if (!validStatuses.includes(status)) {
-    return NextResponse.json(
-      { success: false, message: "Invalid status" },
-      { status: 400 },
-    );
-  }
+  const limited = await rateLimitByUserId(
+    auth.id,
+    RateLimits.API_WRITE,
+    "history:create",
+  );
+  if (limited) return limited;
 
   try {
+    const body = await req.json(); // moved inside try
+    const { amount, type, action, status } = body as HistoryType;
+
+    if (!amount || !type || !action || !status) {
+      return NextResponse.json(
+        { success: false, message: "All fields are required" },
+        { status: 400 },
+      );
+    }
+
+    if (typeof amount !== "number" || amount <= 0) {
+      return NextResponse.json(
+        { success: false, message: "Amount must be a positive number" },
+        { status: 400 },
+      );
+    }
+
+    const validTypes = ["DEPOSIT", "WITHDRAWAL", "TRANSFER", "PAYMENT"];
+    const validActions = ["CREDIT", "DEBIT"];
+    const validStatuses = ["PENDING", "SUCCESS", "FAILED"];
+
+    if (!validTypes.includes(type)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid transaction type" },
+        { status: 400 },
+      );
+    }
+
+    if (!validActions.includes(action)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid action" },
+        { status: 400 },
+      );
+    }
+
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json(
+        { success: false, message: "Invalid status" },
+        { status: 400 },
+      );
+    }
+
     const user = await prisma.user.findUnique({ where: { id: auth.id } });
     if (!user) {
       return NextResponse.json(
@@ -70,13 +79,16 @@ export async function POST(req: Request) {
 
     const history = await prisma.history.create({
       data: {
-        userId: auth.id, // from token — never from frontend
+        userId: auth.id,
         amount,
         type,
         action,
         status,
       },
     });
+
+    // invalidate cache so dashboard reflects new transaction
+    await deleteCache(CacheKeys.userScoped("history", auth.id));
 
     return NextResponse.json(
       {

@@ -4,6 +4,14 @@ NODE_ENV=development
 JWT_ACCESS_SECRET="your_access_secret_key"
 JWT_REFRESH_SECRET="cfghhbn78"
 
+# Upstash (production)
+UPSTASH_REDIS_REST_URL=your-upstash-url
+UPSTASH_REDIS_REST_TOKEN=your-upstash-token
+
+# Local Redis (development)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+
 # nodemailer — use gmail or any SMTP
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587

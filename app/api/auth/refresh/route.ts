@@ -6,8 +6,13 @@ import {
   signRefreshToken,
 } from "@/lib/jwt";
 import { setTokenCookies } from "@/lib/setTokenCookies";
+import { rateLimitByIp, RateLimits } from "@/lib/rateLimit";
 
-export async function POST() {
+export async function POST(req: Request) {
+  // rate limit by IP for refresh token endpoint
+  const limited = await rateLimitByIp(req, RateLimits.REFRESH_TOKEN, "refresh");
+  if (limited) return limited;
+
   try {
     const cookieStore = await cookies();
     const refreshToken = cookieStore.get("refresh_token")?.value;
